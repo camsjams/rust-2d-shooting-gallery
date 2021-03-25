@@ -1,0 +1,10 @@
+[package]
+name = "rust-2d-shooting-gallery"
+description = "A basic shooting gallery built in Rust"
+version = "0.1.0"
+authors = ["Cameron Manavian <cameron.manavian@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+bevy = { git = "https://github.com/bevyengine/bevy", rev="2dd2e5e9" } # use bevy @main branch/[~0.5]
+rand = "0.8.2"
