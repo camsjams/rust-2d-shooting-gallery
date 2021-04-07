@@ -24,7 +24,7 @@ struct Game {
     last_mouse: Vec2,
 }
 
-#[derive(Clone, Eq, PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Debug, Hash)]
 enum GameState {
     Playing,
     GameOver,
@@ -326,22 +326,22 @@ fn setup(
         max: Vec2::new(288. + 128., 321. + 128.),
     });
 
+    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     commands
-        .spawn(OrthographicCameraBundle::new_2d())
-        .spawn(UiCameraBundle::default())
-        .insert_resource(Textures {
-            sprites_stall: texture_atlases.add(stall_texture_atlas),
-            sprites_hud: texture_atlases.add(hud_texture_atlas),
-            sprites_objects: texture_atlases.add(obj_texture_atlas),
-        })
-        .with(Timer::from_seconds(0.1, true));
+        .spawn_bundle(UiCameraBundle::default())
+        .insert(Timer::from_seconds(0.1, true));
+    commands.insert_resource(Textures {
+        sprites_stall: texture_atlases.add(stall_texture_atlas),
+        sprites_hud: texture_atlases.add(hud_texture_atlas),
+        sprites_objects: texture_atlases.add(obj_texture_atlas),
+    });
 }
 
 fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
     // setup primary top curtain
     let mut curtain_primary_start = -512.;
     while curtain_primary_start <= 512. {
-        commands.spawn(SpriteSheetBundle {
+        commands.spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_stall.clone(),
             transform: Transform::from_xyz(curtain_primary_start, 80. * 4., 2.),
             ..Default::default()
@@ -351,7 +351,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
     // setup secondary top curtain
     let mut curtain_secondary_start = -540.;
     while curtain_secondary_start <= 540. {
-        commands.spawn(SpriteSheetBundle {
+        commands.spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_stall.clone(),
             transform: Transform::from_xyz(curtain_secondary_start, 63. * 4.3, 1.),
             sprite: TextureAtlasSprite {
@@ -363,7 +363,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
         curtain_secondary_start += 180.;
     }
     // setup side curtains
-    commands.spawn(SpriteSheetBundle {
+    commands.spawn_bundle(SpriteSheetBundle {
         texture_atlas: texture.sprites_stall.clone(),
         transform: Transform {
             translation: Vec3::new(-582., 100., 1.9),
@@ -376,7 +376,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
         },
         ..Default::default()
     });
-    commands.spawn(SpriteSheetBundle {
+    commands.spawn_bundle(SpriteSheetBundle {
         texture_atlas: texture.sprites_stall.clone(),
         transform: Transform {
             translation: Vec3::new(582., 100., 1.9),
@@ -391,7 +391,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
         ..Default::default()
     });
     // setup side rope
-    commands.spawn(SpriteSheetBundle {
+    commands.spawn_bundle(SpriteSheetBundle {
         texture_atlas: texture.sprites_stall.clone(),
         transform: Transform {
             translation: Vec3::new(-640., 92., 1.95),
@@ -404,7 +404,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
         },
         ..Default::default()
     });
-    commands.spawn(SpriteSheetBundle {
+    commands.spawn_bundle(SpriteSheetBundle {
         texture_atlas: texture.sprites_stall.clone(),
         transform: Transform {
             translation: Vec3::new(640., 92., 1.95),
@@ -421,7 +421,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
     // setup bottom wood frame
     let mut bottom_frame_start = -384.;
     while bottom_frame_start <= 384. {
-        commands.spawn(SpriteSheetBundle {
+        commands.spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_stall.clone(),
             transform: Transform {
                 translation: Vec3::new(bottom_frame_start, -395., 1.8),
@@ -439,7 +439,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
     // setup background wood
     let mut bg_wood_start = -512.;
     while bg_wood_start <= 512. {
-        commands.spawn(SpriteSheetBundle {
+        commands.spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_stall.clone(),
             transform: Transform::from_xyz(bg_wood_start, 200., 1.7),
             sprite: TextureAtlasSprite {
@@ -454,7 +454,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
     for i in 0..11 {
         let offset = -660. + i as f32 * 132.;
         if i % 2 == 0 {
-            commands.spawn(SpriteSheetBundle {
+            commands.spawn_bundle(SpriteSheetBundle {
                 texture_atlas: texture.sprites_stall.clone(),
                 transform: Transform {
                     translation: Vec3::new(offset, 8., 1.73),
@@ -468,7 +468,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
                 ..Default::default()
             });
         } else {
-            commands.spawn(SpriteSheetBundle {
+            commands.spawn_bundle(SpriteSheetBundle {
                 texture_atlas: texture.sprites_stall.clone(),
                 transform: Transform {
                     translation: Vec3::new(offset, 0., 1.73),
@@ -487,7 +487,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
     let mut back_water_start = -660.;
     while back_water_start <= 660. {
         commands
-            .spawn(SpriteSheetBundle {
+            .spawn_bundle(SpriteSheetBundle {
                 texture_atlas: texture.sprites_stall.clone(),
                 transform: Transform::from_xyz(back_water_start, -90., 1.75),
                 sprite: TextureAtlasSprite {
@@ -496,14 +496,14 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
                 },
                 ..Default::default()
             })
-            .with(BackWave);
+            .insert(BackWave);
         back_water_start += 132.;
     }
     // setup front water
     let mut front_water_start = -620.;
     while front_water_start <= 620. {
         commands
-            .spawn(SpriteSheetBundle {
+            .spawn_bundle(SpriteSheetBundle {
                 texture_atlas: texture.sprites_stall.clone(),
                 transform: Transform::from_xyz(front_water_start, -120., 1.78),
                 sprite: TextureAtlasSprite {
@@ -512,12 +512,12 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
                 },
                 ..Default::default()
             })
-            .with(FrontWave);
+            .insert(FrontWave);
         front_water_start += 132.;
     }
     // add cloud 1
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_stall.clone(),
             transform: Transform::from_xyz(-300., 220., 1.71),
             sprite: TextureAtlasSprite {
@@ -526,10 +526,10 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Cloud);
+        .insert(Cloud);
     // add cloud 2
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_stall.clone(),
             transform: Transform::from_xyz(300., 260., 1.71),
             sprite: TextureAtlasSprite {
@@ -538,9 +538,9 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Cloud);
+        .insert(Cloud);
     // add oak tree
-    commands.spawn(SpriteSheetBundle {
+    commands.spawn_bundle(SpriteSheetBundle {
         texture_atlas: texture.sprites_stall.clone(),
         transform: Transform::from_xyz(-530., 190., 1.71),
         sprite: TextureAtlasSprite {
@@ -550,7 +550,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
         ..Default::default()
     });
     // add pine tree
-    commands.spawn(SpriteSheetBundle {
+    commands.spawn_bundle(SpriteSheetBundle {
         texture_atlas: texture.sprites_stall.clone(),
         transform: Transform::from_xyz(530., 130., 1.73),
         sprite: TextureAtlasSprite {
@@ -564,7 +564,7 @@ fn setup_stall(mut commands: Commands, texture: Res<Textures>) {
 fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
     // setup timer
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_hud.clone(),
             transform: Transform::from_xyz(-600., 330., 3.),
             sprite: TextureAtlasSprite {
@@ -573,11 +573,11 @@ fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Clock {
+        .insert(Clock {
             kind: TimeKind::Minute,
         });
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_hud.clone(),
             transform: Transform::from_xyz(-600. + 28., 330., 3.),
             sprite: TextureAtlasSprite {
@@ -586,11 +586,11 @@ fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Clock {
+        .insert(Clock {
             kind: TimeKind::Colon,
         });
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_hud.clone(),
             transform: Transform::from_xyz(-600. + 56., 330., 3.),
             sprite: TextureAtlasSprite {
@@ -599,11 +599,11 @@ fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Clock {
+        .insert(Clock {
             kind: TimeKind::Ten,
         });
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_hud.clone(),
             transform: Transform::from_xyz(-600. + 84., 330., 3.),
             sprite: TextureAtlasSprite {
@@ -612,11 +612,11 @@ fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Clock {
+        .insert(Clock {
             kind: TimeKind::Second,
         });
     // setup score
-    commands.spawn(SpriteSheetBundle {
+    commands.spawn_bundle(SpriteSheetBundle {
         texture_atlas: texture.sprites_hud.clone(),
         transform: Transform::from_xyz(400., 330., 3.),
         sprite: TextureAtlasSprite {
@@ -625,7 +625,7 @@ fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
         },
         ..Default::default()
     });
-    commands.spawn(SpriteSheetBundle {
+    commands.spawn_bundle(SpriteSheetBundle {
         texture_atlas: texture.sprites_hud.clone(),
         transform: Transform::from_xyz(470., 330., 3.),
         sprite: TextureAtlasSprite {
@@ -635,7 +635,7 @@ fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
         ..Default::default()
     });
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_hud.clone(),
             transform: Transform::from_xyz(470. + 28., 330., 3.),
             sprite: TextureAtlasSprite {
@@ -644,11 +644,11 @@ fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Score {
+        .insert(Score {
             kind: ScoreKind::Thousand,
         });
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_hud.clone(),
             transform: Transform::from_xyz(470. + 56., 330., 3.),
             sprite: TextureAtlasSprite {
@@ -657,11 +657,11 @@ fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Score {
+        .insert(Score {
             kind: ScoreKind::Hundred,
         });
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_hud.clone(),
             transform: Transform::from_xyz(470. + 84., 330., 3.),
             sprite: TextureAtlasSprite {
@@ -670,11 +670,11 @@ fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Score {
+        .insert(Score {
             kind: ScoreKind::Ten,
         });
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_hud.clone(),
             transform: Transform::from_xyz(470. + 112., 330., 3.),
             sprite: TextureAtlasSprite {
@@ -683,7 +683,7 @@ fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Score {
+        .insert(Score {
             kind: ScoreKind::One,
         });
 }
@@ -691,7 +691,7 @@ fn setup_hud(mut commands: Commands, texture: Res<Textures>) {
 fn setup_rifle(mut commands: Commands, texture: Res<Textures>) {
     // setup rifle
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_objects.clone(),
             transform: Transform::from_xyz(CROSSHAIR_OFFSET_X, -CROSSHAIR_OFFSET_Y, 4.),
             sprite: TextureAtlasSprite {
@@ -700,9 +700,9 @@ fn setup_rifle(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Rifle);
+        .insert(Rifle);
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_hud.clone(),
             transform: Transform::from_xyz(0., 0., 4.),
             sprite: TextureAtlasSprite {
@@ -711,13 +711,13 @@ fn setup_rifle(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Crosshair);
+        .insert(Crosshair);
 }
 
 fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
     // setup duck
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_objects.clone(),
             transform: Transform::from_xyz(-300., 50., 1.77),
             sprite: TextureAtlasSprite {
@@ -726,7 +726,7 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Target {
+        .insert(Target {
             speed: 3.,
             points: 10,
             hit_box: 99.,
@@ -734,7 +734,7 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             start_y: 0.,
         });
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_objects.clone(),
             transform: Transform::from_xyz(-305., -55., 1.76),
             sprite: TextureAtlasSprite {
@@ -743,10 +743,10 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(TargetStick { speed: 3. });
+        .insert(TargetStick { speed: 3. });
     // setup brown duck
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_objects.clone(),
             transform: Transform::from_xyz(300., 70., 1.74),
             sprite: TextureAtlasSprite {
@@ -755,7 +755,7 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Target {
+        .insert(Target {
             speed: 15.,
             points: 20,
             hit_box: 99.,
@@ -763,7 +763,7 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             start_y: 0.,
         });
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_objects.clone(),
             transform: Transform::from_xyz(295., -35., 1.73),
             sprite: TextureAtlasSprite {
@@ -772,10 +772,10 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(TargetStick { speed: 15. });
+        .insert(TargetStick { speed: 15. });
     // setup colored target
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_objects.clone(),
             transform: Transform::from_xyz(0., 183., 1.72),
             sprite: TextureAtlasSprite {
@@ -784,7 +784,7 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Target {
+        .insert(Target {
             speed: 25.,
             points: 25,
             hit_box: 128.,
@@ -792,7 +792,7 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             start_y: 0.,
         });
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_objects.clone(),
             transform: Transform::from_xyz(0., 60., 1.71),
             sprite: TextureAtlasSprite {
@@ -801,10 +801,10 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(TargetStick { speed: 25. });
+        .insert(TargetStick { speed: 25. });
     // setup red target
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_objects.clone(),
             transform: Transform::from_xyz(300., 203., 1.72),
             sprite: TextureAtlasSprite {
@@ -813,7 +813,7 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Target {
+        .insert(Target {
             speed: 50.,
             points: 50,
             hit_box: 128.,
@@ -821,7 +821,7 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             start_y: 0.,
         });
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_objects.clone(),
             transform: Transform::from_xyz(300., 80., 1.71),
             sprite: TextureAtlasSprite {
@@ -830,10 +830,10 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(TargetStick { speed: 50. });
+        .insert(TargetStick { speed: 50. });
     // setup white target
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture.sprites_objects.clone(),
             transform: Transform::from_xyz(-300., 120., 1.72),
             sprite: TextureAtlasSprite {
@@ -842,7 +842,7 @@ fn setup_targets(mut commands: Commands, texture: Res<Textures>) {
             },
             ..Default::default()
         })
-        .with(Target {
+        .insert(Target {
             speed: 100.,
             points: 250,
             hit_box: 128.,
@@ -1004,7 +1004,7 @@ fn count_down(
     }
 
     if game.time_left == 0 {
-        state.set_next(GameState::GameOver).unwrap();
+        state.set(GameState::GameOver).unwrap();
         return;
     }
     game.time_left -= 1;
@@ -1052,14 +1052,14 @@ fn update_score(mut query: Query<(&mut TextureAtlasSprite, &Score)>, game: Res<G
 // remove all entities that are not a camera
 fn teardown(mut commands: Commands, entities: Query<Entity, Without<Camera>>) {
     for entity in entities.iter() {
-        commands.despawn_recursive(entity);
+        commands.entity(entity).despawn_recursive();
     }
 }
 
 // restart the game when pressing spacebar
 fn gameover_keyboard(mut state: ResMut<State<GameState>>, keyboard_input: Res<Input<KeyCode>>) {
     if keyboard_input.just_pressed(KeyCode::Space) {
-        state.set_next(GameState::Playing).unwrap();
+        state.set(GameState::Playing).unwrap();
     }
 }
 
@@ -1071,7 +1071,7 @@ fn display_score(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     commands
-        .spawn(NodeBundle {
+        .spawn_bundle(NodeBundle {
             style: Style {
                 margin: bevy::math::Rect::all(Val::Auto),
                 justify_content: JustifyContent::Center,
@@ -1082,7 +1082,7 @@ fn display_score(
             ..Default::default()
         })
         .with_children(|parent| {
-            parent.spawn(TextBundle {
+            parent.spawn_bundle(TextBundle {
                 text: Text {
                     sections: vec![
                         TextSection {
