@@ -6,5 +6,5 @@ authors = ["Cameron Manavian <cameron.manavian@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy", rev="2dd2e5e9" } # use bevy @main branch/[~0.5]
+bevy = "0.5"
 rand = "0.8.2"
