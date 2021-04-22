@@ -1,5 +1,5 @@
 # rust-2d-shooting-gallery
-A basic shooting gallery built in Rust
+A basic shooting gallery built in Rust - [see video here](https://www.youtube.com/watch?v=T1ZT0EkzvgI)
 
 # ![Game Demo](img/demo.gif)
 
